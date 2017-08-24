@@ -96,7 +96,7 @@ class VposTest extends TestCase
 
         $this->amount = rand(1, 100);
         $this->orderId = 'MO' . substr(md5(microtime() . rand()), 0, 10);
-        $this->installment = rand(1, 3);
+        $this->installment = 3;
         $this->userIp = '127.0.0.1';
     }
 
