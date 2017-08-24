@@ -11,7 +11,6 @@ namespace PaymentGateway\VPosPayU\Helper;
 
 use PaymentGateway\VPosPayU\Constant\PayUResponseReturnCode;
 use PaymentGateway\VPosPayU\Constant\PayUResponseStatus;
-use PaymentGateway\VPosPayU\Constant\RedirectFormMethod;
 use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Setting;
 use PayU\Alu\MerchantConfig;
@@ -72,6 +71,10 @@ class Helper
         if ($payUResponse->isThreeDs()) {
             $response->setIsRedirect(true);
             $response->setRedirectUrl($payUResponse->getThreeDsUrl());
+        }
+
+        if (!empty($payUResponse->getTokenHash())) {
+            $response->setCardToken($payUResponse->getTokenHash());
         }
 
         return $response;

@@ -37,6 +37,7 @@ class PurchaseRequest implements RequestInterface
     private $deliveryAddress;
     /** @var  Card */
     private $card;
+    private $saveCard = false;
 
     /**
      * @return mixed
@@ -167,6 +168,22 @@ class PurchaseRequest implements RequestInterface
     }
 
     /**
+     * @return bool
+     */
+    public function isSaveCard(): bool
+    {
+        return $this->saveCard;
+    }
+
+    /**
+     * @param bool $saveCard
+     */
+    public function setSaveCard(bool $saveCard)
+    {
+        $this->saveCard = $saveCard;
+    }
+
+    /**
      * @param Setting $setting
      * @return Request
      */
@@ -238,6 +255,10 @@ class PurchaseRequest implements RequestInterface
             $this->getCard()->getCvv(),
             $this->getCard()->getFullName()
         );
+
+        if ($this->isSaveCard()) {
+            $card->enableTokenCreation();
+        }
 
         $request = new Request($merchantConfig, $order, $billing, $delivery, $user);
 

@@ -137,4 +137,25 @@ class VposTest extends TestCase
         $this->assertFalse($response->isSuccessful());
         $this->assertTrue($response->isRedirect());
     }
+
+    public function testPurchaseSaveCard()
+    {
+        $purchaseRequest = new PurchaseRequest();
+        $purchaseRequest->setOrderId($this->orderId);
+        $purchaseRequest->setInstallment($this->installment);
+        $purchaseRequest->setAmount($this->amount);
+        $purchaseRequest->setCurrency($this->currency);
+        $purchaseRequest->setUserIp($this->userIp);
+        $purchaseRequest->setCard($this->card);
+        $purchaseRequest->setBillingAddress($this->billingAddress);
+        $purchaseRequest->setDeliveryAddress($this->deliveryAddress);
+        $purchaseRequest->setSaveCard(true);
+
+        $response = $this->vPos->purchase($purchaseRequest);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertTrue($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertNotEmpty($response->getCardToken());
+    }
 }
