@@ -12,7 +12,7 @@ use PaymentGateway\VPosPayU\Constant\Platform;
 use PaymentGateway\VPosPayU\Exception\NotFoundException;
 use PaymentGateway\VPosPayU\Helper\Validator;
 
-abstract class Setting
+class Setting
 {
     /** @var  Credential $credential */
     private $credential;

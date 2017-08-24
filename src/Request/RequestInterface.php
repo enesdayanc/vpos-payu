@@ -10,9 +10,15 @@ namespace PaymentGateway\VPosPayU\Request;
 
 
 use PaymentGateway\VPosPayU\Setting\Setting;
+use PayU\Alu\Request;
 
 interface RequestInterface
 {
     public function validate();
 
+    /**
+     * @param Setting $setting
+     * @return Request
+     */
+    public function getRequest(Setting $setting);
 }

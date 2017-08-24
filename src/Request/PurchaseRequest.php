@@ -28,6 +28,7 @@ class PurchaseRequest implements RequestInterface
     private $orderId;
     private $userIp;
     private $amount;
+    private $installment;
     /** @var  Currency */
     private $currency;
     /** @var  Address */
@@ -83,6 +84,22 @@ class PurchaseRequest implements RequestInterface
     public function setAmount($amount)
     {
         $this->amount = $amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInstallment()
+    {
+        return $this->installment;
+    }
+
+    /**
+     * @param mixed $installment
+     */
+    public function setInstallment($installment)
+    {
+        $this->installment = $installment;
     }
 
     /**
@@ -175,6 +192,7 @@ class PurchaseRequest implements RequestInterface
             ->withCurrency($this->getCurrency()->getAlpha3())
             ->withOrderDate(gmdate('Y-m-d H:i:s'))
             ->withPayMethod(PayMethod::CCVISAMC)
+            ->withInstallmentsNumber($this->getInstallment())
             ->addProduct($product);
 
         /**
@@ -236,6 +254,7 @@ class PurchaseRequest implements RequestInterface
         Validator::validateNotEmpty('orderId', $this->getOrderId());
         Validator::validateIp($this->getUserIp());
         Validator::validateAmount($this->getAmount());
+        Validator::validateInstallment($this->getInstallment());
         Validator::validateNotEmpty('billingAddress', $this->getBillingAddress());
         $this->getBillingAddress()->validate();
         Validator::validateNotEmpty('deliveryAddress', $this->getDeliveryAddress());

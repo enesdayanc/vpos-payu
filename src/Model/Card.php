@@ -136,5 +136,7 @@ class Card
         Validator::validateExpiryMonth($this->getExpiryMonth());
         Validator::validateExpiryYear($this->getExpiryYear());
         Validator::validateCvv($this->getCvv());
+        Validator::validateNotEmpty('firstName', $this->getFirstName());
+        Validator::validateNotEmpty('lastName', $this->getLastName());
     }
 }

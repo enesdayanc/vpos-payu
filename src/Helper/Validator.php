@@ -92,4 +92,11 @@ class Validator
             throw new ValidationException('Invalid Ip', 'INVALID_IP');
         }
     }
+
+    public static function validateInstallment($value)
+    {
+        if (empty($value) || !is_int($value)) {
+            throw new ValidationException('Invalid Installment', 'INVALID_INSTALLMENT');
+        }
+    }
 }

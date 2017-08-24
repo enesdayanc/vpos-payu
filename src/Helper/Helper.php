@@ -9,6 +9,10 @@
 namespace PaymentGateway\VPosPayU\Helper;
 
 
+use PaymentGateway\VPosPayU\Constant\PayUResponseReturnCode;
+use PaymentGateway\VPosPayU\Constant\PayUResponseStatus;
+use PaymentGateway\VPosPayU\Constant\RedirectFormMethod;
+use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Setting;
 use PayU\Alu\MerchantConfig;
 use ReflectionClass;
@@ -38,5 +42,38 @@ class Helper
         $credential = $setting->getCredential();
 
         return new MerchantConfig($credential->getMerchantCode(), $credential->getSecretKey(), $credential->getPlatform());
+    }
+
+    /**
+     * @param \PayU\Alu\Response $payUResponse
+     * @param $requestRawData
+     * @return Response
+     */
+    public static function ConvertPayUResponseToResponse($payUResponse, $requestRawData)
+    {
+        $response = new Response();
+
+        $response->setRequestRawData($requestRawData);
+
+        $response->setSuccessful(($payUResponse->getStatus() == PayUResponseStatus::SUCCESS && $payUResponse->getReturnCode() == PayUResponseReturnCode::AUTHORIZED));
+
+        $response->setCode($payUResponse->getAuthCode());
+
+        if ($payUResponse->getReturnCode() != PayUResponseReturnCode::AUTHORIZED) {
+            $response->setErrorCode($payUResponse->getReturnCode());
+        }
+
+        if ($payUResponse->getReturnCode() != PayUResponseReturnCode::AUTHORIZED) {
+            $response->setErrorMessage($payUResponse->getReturnMessage());
+        }
+
+        $response->setTransactionReference($payUResponse->getRefno());
+
+        if ($payUResponse->isThreeDs()) {
+            $response->setIsRedirect(true);
+            $response->setRedirectUrl($payUResponse->getThreeDsUrl());
+        }
+
+        return $response;
     }
 }
