@@ -1,0 +1,246 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: enesdayanc
+ * Date: 24/08/2017
+ * Time: 10:54
+ */
+
+namespace PaymentGateway\VPosPayU\Request;
+
+
+use PaymentGateway\ISO4217\Model\Currency;
+use PaymentGateway\VPosPayU\Constant\PayMethod;
+use PaymentGateway\VPosPayU\Helper\Helper;
+use PaymentGateway\VPosPayU\Helper\Validator;
+use PaymentGateway\VPosPayU\Model\Address;
+use PaymentGateway\VPosPayU\Model\Card;
+use PaymentGateway\VPosPayU\Setting\Setting;
+use PayU\Alu\Billing;
+use PayU\Alu\Delivery;
+use PayU\Alu\Order;
+use PayU\Alu\Product;
+use PayU\Alu\Request;
+use PayU\Alu\User;
+
+class PurchaseRequest implements RequestInterface
+{
+    private $orderId;
+    private $userIp;
+    private $amount;
+    /** @var  Currency */
+    private $currency;
+    /** @var  Address */
+    private $billingAddress;
+    /** @var  Address */
+    private $deliveryAddress;
+    /** @var  Card */
+    private $card;
+
+    /**
+     * @return mixed
+     */
+    public function getOrderId()
+    {
+        return $this->orderId;
+    }
+
+    /**
+     * @param mixed $orderId
+     */
+    public function setOrderId($orderId)
+    {
+        $this->orderId = $orderId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserIp()
+    {
+        return $this->userIp;
+    }
+
+    /**
+     * @param mixed $userIp
+     */
+    public function setUserIp($userIp)
+    {
+        $this->userIp = $userIp;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    /**
+     * @param mixed $amount
+     */
+    public function setAmount($amount)
+    {
+        $this->amount = $amount;
+    }
+
+    /**
+     * @return Currency
+     */
+    public function getCurrency(): Currency
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param Currency $currency
+     */
+    public function setCurrency(Currency $currency)
+    {
+        $this->currency = $currency;
+    }
+
+    /**
+     * @return Address
+     */
+    public function getBillingAddress(): Address
+    {
+        return $this->billingAddress;
+    }
+
+    /**
+     * @param Address $billingAddress
+     */
+    public function setBillingAddress(Address $billingAddress)
+    {
+        $this->billingAddress = $billingAddress;
+    }
+
+    /**
+     * @return Address
+     */
+    public function getDeliveryAddress(): Address
+    {
+        return $this->deliveryAddress;
+    }
+
+    /**
+     * @param Address $deliveryAddress
+     */
+    public function setDeliveryAddress(Address $deliveryAddress)
+    {
+        $this->deliveryAddress = $deliveryAddress;
+    }
+
+    /**
+     * @return Card
+     */
+    public function getCard(): Card
+    {
+        return $this->card;
+    }
+
+    /**
+     * @param Card $card
+     */
+    public function setCard(Card $card)
+    {
+        $this->card = $card;
+    }
+
+    /**
+     * @param Setting $setting
+     * @return Request
+     */
+    public function getRequest(Setting $setting)
+    {
+        $this->validate();
+
+        $merchantConfig = Helper::getMerchantConfigFromSetting($setting);
+
+        $user = new User($this->getUserIp());
+
+        $product = new Product();
+
+        $product->withCode($setting->getDefaultProductCode())
+            ->withName($setting->getDefaultProductName())
+            ->withPrice($this->getAmount())
+            ->withQuantity(1);
+
+        $order = new Order();
+
+        $order->withBackRef($setting->getThreeDReturnUrl())
+            ->withOrderRef($this->getOrderId())
+            ->withCurrency($this->getCurrency()->getAlpha3())
+            ->withOrderDate(gmdate('Y-m-d H:i:s'))
+            ->withPayMethod(PayMethod::CCVISAMC)
+            ->addProduct($product);
+
+        /**
+         * Create new billing address
+         */
+        $billing = new Billing();
+
+        /**
+         * Setup the billing address params
+         *
+         * Full params available in the documentation
+         */
+        $billing->withAddressLine1($this->getBillingAddress()->getAddressLine1())
+            ->withAddressLine2($this->getBillingAddress()->getAddressLine2())
+            ->withCountryCode($this->getBillingAddress()->getCountryCode())
+            ->withEmail($this->getBillingAddress()->getEmail())
+            ->withFirstName($this->getBillingAddress()->getFirstName())
+            ->withLastName($this->getBillingAddress()->getLastName())
+            ->withPhoneNumber($this->getBillingAddress()->getPhoneNumber());
+
+        /**
+         * Create new delivery address
+         */
+        $delivery = new Delivery();
+
+        /**
+         * Setup the delivery address params
+         *
+         * Full params available in the documentation
+         */
+        $delivery->withAddressLine1($this->getBillingAddress()->getAddressLine1())
+            ->withAddressLine2($this->getBillingAddress()->getAddressLine2())
+            ->withCountryCode($this->getBillingAddress()->getCountryCode())
+            ->withEmail($this->getBillingAddress()->getEmail())
+            ->withFirstName($this->getBillingAddress()->getFirstName())
+            ->withLastName($this->getBillingAddress()->getLastName())
+            ->withPhoneNumber($this->getBillingAddress()->getPhoneNumber());
+
+        $card = new \PayU\Alu\Card(
+            $this->getCard()->getCreditCardNumber(),
+            $this->getCard()->getExpiryMonth(),
+            $this->getCard()->getExpiryFullYear(),
+            $this->getCard()->getCvv(),
+            $this->getCard()->getFullName()
+        );
+
+        $request = new Request($merchantConfig, $order, $billing, $delivery, $user);
+
+        /**
+         * Add the Credit Card to the Request
+         */
+        $request->setCard($card);
+
+        return $request;
+    }
+
+    public function validate()
+    {
+        Validator::validateNotEmpty('orderId', $this->getOrderId());
+        Validator::validateIp($this->getUserIp());
+        Validator::validateAmount($this->getAmount());
+        Validator::validateNotEmpty('billingAddress', $this->getBillingAddress());
+        $this->getBillingAddress()->validate();
+        Validator::validateNotEmpty('deliveryAddress', $this->getDeliveryAddress());
+        $this->getDeliveryAddress()->validate();
+        Validator::validateNotEmpty('card', $this->getCard());
+        $this->getCard()->validate();
+    }
+}
