@@ -19,6 +19,7 @@ class Response
     private $isRedirect = false;
     private $redirectUrl;
     private $requestRawData;
+    private $rawData;
     private $cardToken;
 
     /**
@@ -163,5 +164,21 @@ class Response
     public function setCardToken($cardToken)
     {
         $this->cardToken = $cardToken;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRawData()
+    {
+        return $this->rawData;
+    }
+
+    /**
+     * @param mixed $rawData
+     */
+    public function setRawData($rawData)
+    {
+        $this->rawData = $rawData;
     }
 }

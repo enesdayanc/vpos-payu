@@ -9,7 +9,7 @@
 namespace PaymentGateway\VPosPayU;
 
 use PaymentGateway\VPosPayU\Request\PurchaseRequest;
-use PaymentGateway\VPosPayU\Request\RequestInterface;
+use PaymentGateway\VPosPayU\Request\RefundRequest;
 use PaymentGateway\VPosPayU\Setting\Setting;
 
 class VPos
@@ -31,5 +31,10 @@ class VPos
     public function purchase(PurchaseRequest $purchaseRequest)
     {
         return $this->httpClient->sendPay($purchaseRequest);
+    }
+
+    public function refund(RefundRequest $refundRequest)
+    {
+        return $this->httpClient->sendRefund($refundRequest);
     }
 }

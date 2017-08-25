@@ -9,14 +9,11 @@
 namespace PaymentGateway\VPosPayU;
 
 
-use PaymentGateway\VPosPayU\Constant\PayUResponseReturnCode;
-use PaymentGateway\VPosPayU\Constant\PayUResponseStatus;
-use PaymentGateway\VPosPayU\Constant\RedirectFormMethod;
+use Exception;
 use PaymentGateway\VPosPayU\Exception\CurlException;
-use PaymentGateway\VPosPayU\Exception\ValidationException;
 use PaymentGateway\VPosPayU\Helper\Helper;
+use PaymentGateway\VPosPayU\Request\RefundRequest;
 use PaymentGateway\VPosPayU\Request\RequestInterface;
-use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Setting;
 use PayU\Alu\Client;
 
@@ -50,5 +47,26 @@ class HttpClient
         }
 
         return Helper::ConvertPayUResponseToResponse($payUResponse, json_encode($request->getRequestParams()));
+    }
+
+
+    public function sendRefund(RefundRequest $refundRequest)
+    {
+        $params = $refundRequest->getRequestParams($this->setting);
+
+        $guzzleClient = new \GuzzleHttp\Client();
+
+        try {
+            $clientResponse = $guzzleClient->post(
+                $this->setting->getIrnUrl(),
+                [
+                    'form_params' => $params
+                ]
+            );
+        } catch (Exception $exception) {
+            throw new CurlException('Connection Error', $exception->getMessage());
+        }
+
+        return Helper::ConvertRefundGuzzleResponseToResponse($clientResponse->getBody()->getContents());
     }
 }

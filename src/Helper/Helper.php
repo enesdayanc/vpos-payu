@@ -9,12 +9,16 @@
 namespace PaymentGateway\VPosPayU\Helper;
 
 
+use Exception;
 use PaymentGateway\VPosPayU\Constant\PayUResponseReturnCode;
 use PaymentGateway\VPosPayU\Constant\PayUResponseStatus;
+use PaymentGateway\VPosPayU\Constant\RefundResponseMessage;
+use PaymentGateway\VPosPayU\Exception\ValidationException;
 use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Setting;
 use PayU\Alu\MerchantConfig;
 use ReflectionClass;
+use SimpleXMLElement;
 use Spatie\ArrayToXml\ArrayToXml;
 
 class Helper
@@ -75,6 +79,62 @@ class Helper
 
         if (!empty($payUResponse->getTokenHash())) {
             $response->setCardToken($payUResponse->getTokenHash());
+        }
+
+        return $response;
+    }
+
+    public static function amountParser($amount)
+    {
+        return sprintf("%.2f", $amount);
+    }
+
+    public static function generateHash($key, $data)
+    {
+        $b = 64; // byte length for md5
+        if (strlen($key) > $b) {
+            $key = pack("H*", md5($key));
+        }
+        $key = str_pad($key, $b, chr(0x00));
+        $ipad = str_pad('', $b, chr(0x36));
+        $opad = str_pad('', $b, chr(0x5c));
+        $k_ipad = $key ^ $ipad;
+        $k_opad = $key ^ $opad;
+
+        return md5($k_opad . pack("H*", md5($k_ipad . $data)));
+    }
+
+    public static function ConvertRefundGuzzleResponseToResponse($guzzleResponse)
+    {
+        $response = new Response();
+
+        $response->setRawData($guzzleResponse);
+
+        try {
+            $data = new SimpleXMLElement($guzzleResponse);
+        } catch (Exception $exception) {
+            throw new ValidationException('Invalid Xml Response', 'INVALID_XML_RESPONSE');
+        }
+
+        if (isset($data[0]) && strpos($data[0], '|') !== false) {
+            $explodeArray = explode('|', $data[0]);
+
+            $returnArray['ORDER_REF'] = $explodeArray[0];
+            $returnArray['RESPONSE_CODE'] = $explodeArray[1];
+            $returnArray['RESPONSE_MSG'] = $explodeArray[2];
+            $returnArray['IRN_DATE'] = $explodeArray[3];
+            $returnArray['ORDER_HASH'] = $explodeArray[4];
+
+
+            if ($returnArray['RESPONSE_MSG'] == RefundResponseMessage::OK) {
+                $response->setSuccessful(true);
+            } else {
+                $response->setErrorCode($returnArray['RESPONSE_CODE']);
+                $response->setErrorMessage($returnArray['RESPONSE_MSG']);
+            }
+
+            $response->setTransactionReference($returnArray['ORDER_HASH']);
+
         }
 
         return $response;

@@ -14,6 +14,7 @@ use PaymentGateway\VPosPayU\Constant\Platform;
 use PaymentGateway\VPosPayU\Model\Address;
 use PaymentGateway\VPosPayU\Model\Card;
 use PaymentGateway\VPosPayU\Request\PurchaseRequest;
+use PaymentGateway\VPosPayU\Request\RefundRequest;
 use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Credential;
 use PaymentGateway\VPosPayU\Setting\Setting;
@@ -117,6 +118,12 @@ class VposTest extends TestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertTrue($response->isSuccessful());
         $this->assertFalse($response->isRedirect());
+
+        return array(
+            'amount' => $this->amount,
+            'transactionReference' => $response->getTransactionReference(),
+            'currency' => $this->currency,
+        );
     }
 
     public function testPurchase3DAccount()
@@ -251,5 +258,47 @@ class VposTest extends TestCase
         $this->assertFalse($response->isSuccessful());
         $this->assertFalse($response->isRedirect());
         $this->assertSame('INVALID_CC_TOKEN', $response->getErrorCode());
+    }
+
+
+    /**
+     * @depends testPurchase
+     * @param $params
+     */
+    public function testRefund($params)
+    {
+        $refundRequest = new RefundRequest();
+
+        $refundRequest->setOrderTotalAmount($params['amount']);
+        $refundRequest->setAmount($params['amount'] / 2);
+        $refundRequest->setCurrency($params['currency']);
+        $refundRequest->setTransactionReference($params['transactionReference']);
+
+        $response = $this->vPos->refund($refundRequest);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertTrue($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+    }
+
+    /**
+     * @depends testPurchase
+     * @param $params
+     */
+    public function testRefundMultipleFail($params)
+    {
+        $refundRequest = new RefundRequest();
+
+        $refundRequest->setOrderTotalAmount($params['amount'] + 1);
+        $refundRequest->setAmount($params['amount'] / 2);
+        $refundRequest->setCurrency($params['currency']);
+        $refundRequest->setTransactionReference($params['transactionReference']);
+
+        $response = $this->vPos->refund($refundRequest);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertFalse($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertSame('32', $response->getErrorCode());
     }
 }
