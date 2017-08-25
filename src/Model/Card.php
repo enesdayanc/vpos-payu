@@ -19,6 +19,7 @@ class Card
     private $cvv;
     private $firstName;
     private $lastName;
+    private $cardToken;
 
     /**
      * @return mixed
@@ -130,8 +131,28 @@ class Card
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
 
+    /**
+     * @return mixed
+     */
+    public function getCardToken()
+    {
+        return $this->cardToken;
+    }
+
+    /**
+     * @param mixed $cardToken
+     */
+    public function setCardToken($cardToken)
+    {
+        $this->cardToken = $cardToken;
+    }
+
     public function validate()
     {
+        if (!empty($this->getCardToken())) {
+            return true;
+        }
+
         Validator::validateCardNumber($this->getCreditCardNumber());
         Validator::validateExpiryMonth($this->getExpiryMonth());
         Validator::validateExpiryYear($this->getExpiryYear());

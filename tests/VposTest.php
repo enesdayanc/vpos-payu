@@ -157,5 +157,102 @@ class VposTest extends TestCase
         $this->assertTrue($response->isSuccessful());
         $this->assertFalse($response->isRedirect());
         $this->assertNotEmpty($response->getCardToken());
+
+
+        // add wait for prepare payu server store card
+        sleep(2);
+
+        return array(
+            'cardToken' => $response->getCardToken(),
+            'cvv' => $this->card->getCvv(),
+        );
+    }
+
+
+    /**
+     * @depends testPurchaseSaveCard
+     * @param $params
+     */
+    public function testPurchaseWithSavedCardOnlyToken($params)
+    {
+        $card = new Card();
+
+        $card->setCardToken($params['cardToken']);
+
+        $purchaseRequest = new PurchaseRequest();
+        $purchaseRequest->setOrderId($this->orderId);
+        $purchaseRequest->setInstallment($this->installment);
+        $purchaseRequest->setAmount($this->amount);
+        $purchaseRequest->setCurrency($this->currency);
+        $purchaseRequest->setUserIp($this->userIp);
+        $purchaseRequest->setBillingAddress($this->billingAddress);
+        $purchaseRequest->setDeliveryAddress($this->deliveryAddress);
+        $purchaseRequest->setCard($card);
+
+        $response = $this->vPos->purchase($purchaseRequest);
+
+        print_r($response);
+        exit();
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertTrue($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+    }
+
+    /**
+     * @depends testPurchaseSaveCard
+     * @param $params
+     */
+    public function testPurchaseWithSavedCardCvvAuth($params)
+    {
+        $card = new Card();
+
+        $card->setCardToken($params['cardToken']);
+        $card->setCvv($params['cvv']);
+
+        $purchaseRequest = new PurchaseRequest();
+        $purchaseRequest->setOrderId($this->orderId);
+        $purchaseRequest->setInstallment($this->installment);
+        $purchaseRequest->setAmount($this->amount);
+        $purchaseRequest->setCurrency($this->currency);
+        $purchaseRequest->setUserIp($this->userIp);
+        $purchaseRequest->setBillingAddress($this->billingAddress);
+        $purchaseRequest->setDeliveryAddress($this->deliveryAddress);
+        $purchaseRequest->setCard($card);
+
+        $response = $this->vPos->purchase($purchaseRequest);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertTrue($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+    }
+
+
+    /**
+     * @depends testPurchaseSaveCard
+     * @param $params
+     */
+    public function testPurchaseFailWithSavedCardWrongVPos($params)
+    {
+        $card = new Card();
+
+        $card->setCardToken($params['cardToken']);
+
+        $purchaseRequest = new PurchaseRequest();
+        $purchaseRequest->setOrderId($this->orderId);
+        $purchaseRequest->setInstallment($this->installment);
+        $purchaseRequest->setAmount($this->amount);
+        $purchaseRequest->setCurrency($this->currency);
+        $purchaseRequest->setUserIp($this->userIp);
+        $purchaseRequest->setBillingAddress($this->billingAddress);
+        $purchaseRequest->setDeliveryAddress($this->deliveryAddress);
+        $purchaseRequest->setCard($card);
+
+        $response = $this->vPosThreeD->purchase($purchaseRequest);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertFalse($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertSame('INVALID_CC_TOKEN', $response->getErrorCode());
     }
 }

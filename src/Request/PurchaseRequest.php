@@ -17,6 +17,7 @@ use PaymentGateway\VPosPayU\Model\Address;
 use PaymentGateway\VPosPayU\Model\Card;
 use PaymentGateway\VPosPayU\Setting\Setting;
 use PayU\Alu\Billing;
+use PayU\Alu\CardToken;
 use PayU\Alu\Delivery;
 use PayU\Alu\Order;
 use PayU\Alu\Product;
@@ -248,24 +249,41 @@ class PurchaseRequest implements RequestInterface
             ->withLastName($this->getBillingAddress()->getLastName())
             ->withPhoneNumber($this->getBillingAddress()->getPhoneNumber());
 
-        $card = new \PayU\Alu\Card(
-            $this->getCard()->getCreditCardNumber(),
-            $this->getCard()->getExpiryMonth(),
-            $this->getCard()->getExpiryFullYear(),
-            $this->getCard()->getCvv(),
-            $this->getCard()->getFullName()
-        );
-
-        if ($this->isSaveCard()) {
-            $card->enableTokenCreation();
-        }
-
         $request = new Request($merchantConfig, $order, $billing, $delivery, $user);
 
-        /**
-         * Add the Credit Card to the Request
-         */
-        $request->setCard($card);
+
+        if (empty($this->getCard()->getCardToken())) {
+            /*
+             * Pay With Card
+             */
+            $card = new \PayU\Alu\Card(
+                $this->getCard()->getCreditCardNumber(),
+                $this->getCard()->getExpiryMonth(),
+                $this->getCard()->getExpiryFullYear(),
+                $this->getCard()->getCvv(),
+                $this->getCard()->getFullName()
+            );
+
+            if ($this->isSaveCard()) {
+                $card->enableTokenCreation();
+            }
+
+            $request->setCard($card);
+        } else {
+            if (empty($this->getCard()->getCvv())) {
+                /*
+                 * Pay With Saved Card Token
+                 */
+                $request->setCardToken(new CardToken($this->getCard()->getCardToken()));
+            } else {
+                /*
+                 * Pay With Saved Card Token And Cvv Authorization
+                 */
+                $request->setCardToken(new CardToken($this->getCard()->getCardToken(), $this->getCard()->getCvv()));
+            }
+
+        }
+
 
         return $request;
     }
