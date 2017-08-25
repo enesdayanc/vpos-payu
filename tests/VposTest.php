@@ -160,7 +160,7 @@ class VposTest extends TestCase
 
 
         // add wait for prepare payu server store card
-        sleep(2);
+        sleep(3);
 
         return array(
             'cardToken' => $response->getCardToken(),
@@ -190,9 +190,6 @@ class VposTest extends TestCase
         $purchaseRequest->setCard($card);
 
         $response = $this->vPos->purchase($purchaseRequest);
-
-        print_r($response);
-        exit();
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertTrue($response->isSuccessful());
