@@ -301,4 +301,121 @@ class VposTest extends TestCase
         $this->assertFalse($response->isRedirect());
         $this->assertSame('32', $response->getErrorCode());
     }
+
+    public function testHandle3DResponse()
+    {
+
+        $params = array(
+            'REFNO' => '39317193',
+            'ALIAS' => 'c9f5fcf9015dec58d1fd85b8fe96f6f2',
+            'STATUS' => 'SUCCESS',
+            'RETURN_CODE' => 'AUTHORIZED',
+            'RETURN_MESSAGE' => 'Authorized.',
+            'DATE' => '2017-08-25 15:21:05',
+            'AMOUNT' => '84.93',
+            'CURRENCY' => 'TRY',
+            'INSTALLMENTS_NO' => '3',
+            'CARD_PROGRAM_NAME' => 'AXESS',
+            'ORDER_REF' => 'MOe175ec6c62',
+            'AUTH_CODE' => '098940',
+            'RRN' => '723715146667',
+            'ERRORMESSAGE' => 'Approved.',
+            'PROCRETURNCODE' => '00',
+            'BANK_MERCHANT_ID' => '100100000',
+            'PAN' => '4355-xxxx-xxxx-4358',
+            'EXPYEAR' => '',
+            'EXPMONTH' => '',
+            'CLIENTID' => '100100000',
+            'HOSTREFNUM' => '723715146667',
+            'OID' => '39317193',
+            'RESPONSE' => 'Approved',
+            'TERMINAL_BANK' => 'AKBA',
+            'MDSTATUS' => '',
+            'MDERRORMSG' => '',
+            'TXSTATUS' => '',
+            'XID' => '',
+            'ECI' => '',
+            'CAVV' => '',
+            'TRANSID' => '17237PVEI12577',
+            'HASH' => '9d03d67f308d27a858ce5774084e673e',
+        );
+
+        $response = $this->vPosThreeD->handle3DResponse($params);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertTrue($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+
+        return array(
+            'amount' => $params['AMOUNT'],
+            'transactionReference' => $response->getTransactionReference(),
+            'currency' => $this->currency,
+        );
+    }
+
+    public function testHandle3DResponseFail()
+    {
+
+        $params = array(
+            'REFNO' => '39495462',
+            'ALIAS' => '',
+            'STATUS' => 'FAILED',
+            'RETURN_CODE' => 'GWERROR_105',
+            'RETURN_MESSAGE' => '3DS authentication error',
+            'DATE' => '2017-08-25 15:36:37',
+            'AMOUNT' => '13.23',
+            'CURRENCY' => 'TRY',
+            'INSTALLMENTS_NO' => '1',
+            'CARD_PROGRAM_NAME' => 'AXESS',
+            'ORDER_REF' => 'MO8494489c06',
+            'AUTH_CODE' => '',
+            'RRN' => '',
+            'PROCRETURNCODE' => 'GWERROR_105',
+            'ERRORMESSAGE' => 'Not authenticated',
+            'BANK_MERCHANT_ID' => '100100000',
+            'PAN' => '4355-xxxx-xxxx-4358',
+            'EXPYEAR' => '',
+            'EXPMONTH' => '',
+            'CLIENTID' => '100100000',
+            'HOSTREFNUM' => '',
+            'OID' => '39495462',
+            'RESPONSE' => '',
+            'TERMINAL_BANK' => 'AKBA',
+            'MDSTATUS' => '',
+            'MDERRORMSG' => 'Not authenticated',
+            'TXSTATUS' => 'N',
+            'XID' => 'FZPNzjhSLHvSqyA14wgMt+QiU08=',
+            'ECI' => '',
+            'CAVV' => '',
+            'TRANSID' => '',
+            'HASH' => 'a00c7d76734f7372c2ec1cb430199be3',
+        );
+
+        $response = $this->vPosThreeD->handle3DResponse($params);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertFalse($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+    }
+
+    /**
+     * @depends testHandle3DResponse
+     * @param $params
+     */
+    public function testRefund3DFail($params)
+    {
+        $refundRequest = new RefundRequest();
+
+        $refundRequest->setOrderTotalAmount($params['amount']);
+        $refundRequest->setAmount($params['amount'] / 2);
+        $refundRequest->setCurrency($params['currency']);
+        $refundRequest->setTransactionReference($params['transactionReference']);
+
+        $response = $this->vPosThreeD->refund($refundRequest);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertFalse($response->isSuccessful());
+        $this->assertFalse($response->isRedirect());
+        $this->assertSame('32', $response->getErrorCode());
+    }
 }

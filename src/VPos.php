@@ -8,6 +8,7 @@
 
 namespace PaymentGateway\VPosPayU;
 
+use PaymentGateway\VPosPayU\Model\ThreeDResponse;
 use PaymentGateway\VPosPayU\Request\PurchaseRequest;
 use PaymentGateway\VPosPayU\Request\RefundRequest;
 use PaymentGateway\VPosPayU\Setting\Setting;
@@ -36,5 +37,12 @@ class VPos
     public function refund(RefundRequest $refundRequest)
     {
         return $this->httpClient->sendRefund($refundRequest);
+    }
+
+    public function handle3DResponse(array $allParams)
+    {
+        $threeDResponse = new ThreeDResponse();
+
+        return $threeDResponse->getResponseClass($this->setting, $allParams);
     }
 }
