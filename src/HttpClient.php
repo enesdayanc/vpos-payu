@@ -20,6 +20,7 @@ use PayU\Alu\Client;
 class HttpClient
 {
     private $setting;
+    private $timeout = 20;
 
     /**
      * HttpClient constructor.
@@ -60,6 +61,7 @@ class HttpClient
             $clientResponse = $guzzleClient->post(
                 $this->setting->getIrnUrl(),
                 [
+                    'timeout' => $this->timeout,
                     'form_params' => $params
                 ]
             );
