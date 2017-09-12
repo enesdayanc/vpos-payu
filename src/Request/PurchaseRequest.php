@@ -300,5 +300,6 @@ class PurchaseRequest implements RequestInterface
         $this->getDeliveryAddress()->validate();
         Validator::validateNotEmpty('card', $this->getCard());
         $this->getCard()->validate();
+        Validator::validateCurrency($this->getCurrency());
     }
 }

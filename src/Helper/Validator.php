@@ -9,6 +9,7 @@
 namespace PaymentGateway\VPosPayU\Helper;
 
 
+use PaymentGateway\VPosPayU\Constant\Currency;
 use PaymentGateway\VPosPayU\Constant\Platform;
 use PaymentGateway\VPosPayU\Exception\ValidationException;
 
@@ -97,6 +98,19 @@ class Validator
     {
         if (empty($value) || !is_int($value)) {
             throw new ValidationException('Invalid Installment', 'INVALID_INSTALLMENT');
+        }
+    }
+
+    public static function validateCurrency($value)
+    {
+        if (!$value instanceof \PaymentGateway\ISO4217\Model\Currency) {
+            throw new ValidationException('Invalid Currency Type', 'INVALID_CURRENCY_TYPE');
+        }
+
+        $alpha3 = $value->getAlpha3();
+
+        if (!in_array($alpha3, Helper::getConstants(Currency::class))) {
+            throw new ValidationException('Invalid Currency', 'INVALID_CURRENCY');
         }
     }
 }

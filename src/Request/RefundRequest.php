@@ -92,6 +92,7 @@ class RefundRequest implements RequestInterface
         Validator::validateNotEmpty('transactionReference', $this->getTransactionReference());
         Validator::validateAmount($this->getAmount());
         Validator::validateAmount($this->getOrderTotalAmount());
+        Validator::validateCurrency($this->getCurrency());
     }
 
     public function getRequestParams(Setting $setting)
