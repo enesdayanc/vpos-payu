@@ -12,6 +12,7 @@ namespace PaymentGateway\VPosPayU\Helper;
 use Exception;
 use PaymentGateway\VPosPayU\Constant\PayUResponseReturnCode;
 use PaymentGateway\VPosPayU\Constant\PayUResponseStatus;
+use PaymentGateway\VPosPayU\Constant\RedirectMethod;
 use PaymentGateway\VPosPayU\Constant\RefundResponseMessage;
 use PaymentGateway\VPosPayU\Exception\ValidationException;
 use PaymentGateway\VPosPayU\Response\Response;
@@ -77,6 +78,8 @@ class Helper
         if ($payUResponse->isThreeDs()) {
             $response->setIsRedirect(true);
             $response->setRedirectUrl($payUResponse->getThreeDsUrl());
+            $response->setRedirectMethod(RedirectMethod::GET);
+            $response->setRedirectData(null);
         }
 
         if (!empty($payUResponse->getTokenHash())) {

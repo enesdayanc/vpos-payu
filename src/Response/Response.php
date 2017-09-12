@@ -18,6 +18,8 @@ class Response
     private $transactionReference;
     private $isRedirect = false;
     private $redirectUrl;
+    private $redirectMethod;
+    private $redirectData;
     private $requestRawData;
     private $rawData;
     private $cardToken;
@@ -148,6 +150,38 @@ class Response
     public function setRequestRawData($requestRawData)
     {
         $this->requestRawData = $requestRawData;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRedirectMethod()
+    {
+        return $this->redirectMethod;
+    }
+
+    /**
+     * @param mixed $redirectMethod
+     */
+    public function setRedirectMethod($redirectMethod)
+    {
+        $this->redirectMethod = $redirectMethod;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRedirectData()
+    {
+        return $this->redirectData;
+    }
+
+    /**
+     * @param mixed $redirectData
+     */
+    public function setRedirectData($redirectData)
+    {
+        $this->redirectData = $redirectData;
     }
 
     /**
