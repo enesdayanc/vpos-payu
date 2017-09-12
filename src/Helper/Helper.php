@@ -56,6 +56,8 @@ class Helper
     {
         $response = new Response();
 
+        $response->setRawData(json_encode($payUResponse->getResponseParams()));
+
         $response->setRequestRawData($requestRawData);
 
         $response->setSuccessful(($payUResponse->getStatus() == PayUResponseStatus::SUCCESS && $payUResponse->getReturnCode() == PayUResponseReturnCode::AUTHORIZED));
