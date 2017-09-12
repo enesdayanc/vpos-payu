@@ -45,4 +45,12 @@ class VPos
 
         return $threeDResponse->getResponseClass($this->setting, $allParams);
     }
+
+    /**
+     * @return Setting
+     */
+    public function getSetting(): Setting
+    {
+        return $this->setting;
+    }
 }
