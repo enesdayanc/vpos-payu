@@ -186,9 +186,10 @@ class PurchaseRequest implements RequestInterface
 
     /**
      * @param Setting $setting
+     * @param bool $maskCardData
      * @return Request
      */
-    public function getRequest(Setting $setting)
+    public function getRequest(Setting $setting, bool $maskCardData = false)
     {
         $this->validate();
 
@@ -257,10 +258,10 @@ class PurchaseRequest implements RequestInterface
              * Pay With Card
              */
             $card = new \PayU\Alu\Card(
-                $this->getCard()->getCreditCardNumber(),
-                $this->getCard()->getExpiryMonth(),
-                $this->getCard()->getExpiryFullYear(),
-                $this->getCard()->getCvv(),
+                $this->getCard()->getCreditCardNumber($maskCardData),
+                $this->getCard()->getExpiryMonth($maskCardData),
+                $this->getCard()->getExpiryFullYear($maskCardData),
+                $this->getCard()->getCvv($maskCardData),
                 $this->getCard()->getFullName()
             );
 

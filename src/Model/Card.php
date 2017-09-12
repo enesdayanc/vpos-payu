@@ -9,6 +9,7 @@
 namespace PaymentGateway\VPosPayU\Model;
 
 
+use PaymentGateway\VPosPayU\Helper\Helper;
 use PaymentGateway\VPosPayU\Helper\Validator;
 
 class Card
@@ -22,10 +23,15 @@ class Card
     private $cardToken;
 
     /**
+     * @param bool $maskCardData
      * @return mixed
      */
-    public function getCreditCardNumber()
+    public function getCreditCardNumber(bool $maskCardData = false)
     {
+        if ($maskCardData) {
+            return Helper::maskValue($this->creditCardNumber, 0, 6);
+        }
+
         return $this->creditCardNumber;
     }
 
@@ -38,10 +44,16 @@ class Card
     }
 
     /**
+     * @param bool $maskCardData
      * @return mixed
      */
-    public function getExpiryMonth()
+    public function getExpiryMonth(bool $maskCardData = false)
     {
+
+        if ($maskCardData) {
+            return Helper::maskValue($this->expiryMonth);
+        }
+
         return $this->expiryMonth;
     }
 
@@ -54,19 +66,25 @@ class Card
     }
 
     /**
+     * @param bool $maskCardData
      * @return mixed
      */
-    public function getExpiryYear()
+    public function getExpiryYear(bool $maskCardData = false)
     {
+        if ($maskCardData) {
+            return Helper::maskValue($this->expiryYear);
+        }
+
         return $this->expiryYear;
     }
 
     /**
+     * @param bool $maskCardData
      * @return mixed
      */
-    public function getExpiryFullYear()
+    public function getExpiryFullYear(bool $maskCardData = false)
     {
-        return '20' . $this->expiryYear;
+        return '20' . $this->getExpiryYear($maskCardData);
     }
 
     /**
@@ -78,10 +96,15 @@ class Card
     }
 
     /**
+     * @param bool $maskCardData
      * @return mixed
      */
-    public function getCvv()
+    public function getCvv(bool $maskCardData = false)
     {
+        if ($maskCardData) {
+            return Helper::maskValue($this->cvv);
+        }
+
         return $this->cvv;
     }
 
@@ -132,10 +155,15 @@ class Card
     }
 
     /**
+     * @param bool $maskCardData
      * @return mixed
      */
-    public function getCardToken()
+    public function getCardToken(bool $maskCardData = false)
     {
+        if ($maskCardData) {
+            return Helper::maskValue($this->cardToken);
+        }
+
         return $this->cardToken;
     }
 
