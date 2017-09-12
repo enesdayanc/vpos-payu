@@ -25,12 +25,16 @@ class ThreeDResponse
     public function getResponseClass(Setting $setting, array $allParams)
     {
         $response = new Response();
+        $response->setRequestRawData(json_encode($allParams, true));
+
 
         $merchantConfig = Helper::getMerchantConfigFromSetting($setting);
 
         $client = new Client($merchantConfig);
 
         $handleResponse = $client->handleThreeDSReturnResponse($allParams);
+
+        $response->setRawData(json_encode($handleResponse->getResponseParams(), true));
 
         if ($handleResponse->getStatus() == ThreeDSResponse::SUCCESS) {
             $response->setSuccessful(true);
