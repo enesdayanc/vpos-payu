@@ -112,4 +112,24 @@ class Setting
 
         throw new NotFoundException('Irn Url Not Found', 'IRN_URL_NOT_FOUND');
     }
+
+    public function getCardTokenInfoUrl(string $cardToken)
+    {
+        $this->validate();
+
+        switch ($this->getCredential()->getPlatform()) {
+            case Platform::RO:
+                return sprintf('https://secure.payu.ro/order/token/v2/merchantToken/%s', $cardToken);
+            case Platform::RU:
+                return sprintf('https://secure.payu.ru/order/token/v2/merchantToken/%s', $cardToken);
+            case Platform::UA:
+                return sprintf('https://secure.payu.ua/order/token/v2/merchantToken/%s', $cardToken);
+            case Platform::TR:
+                return sprintf('https://secure.payu.com.tr/order/token/v2/merchantToken/%s', $cardToken);
+            case Platform::HU:
+                return sprintf('https://secure.payu.hu/order/token/v2/merchantToken/%s', $cardToken);
+        }
+
+        throw new NotFoundException('Card Token Info Url Not Found', 'CARD_TOKEN_INFO_URL_NOT_FOUND');
+    }
 }

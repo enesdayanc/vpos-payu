@@ -43,7 +43,18 @@ class ThreeDResponse
         }
 
         $response->setCode($handleResponse->getAuthCode());
-        $response->setCardToken($handleResponse->getTokenHash());
+
+        if (!empty($handleResponse->getTokenHash())) {
+            $response->setCardPan($handleResponse->getAdditionalParameterValue('PAN'));
+            $response->setCardToken($handleResponse->getTokenHash());
+
+            $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
+
+            $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
+            $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
+            $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
+        }
+
         $response->setTransactionReference($handleResponse->getRefno());
 
         return $response;

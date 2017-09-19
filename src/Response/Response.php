@@ -23,6 +23,11 @@ class Response
     private $requestRawData;
     private $rawData;
     private $cardToken;
+    private $cardPan;
+    private $cardExpiryDate;
+    private $cardTokenExpiryDate;
+    private $cardHolderName;
+
 
     /**
      * @return bool
@@ -214,5 +219,69 @@ class Response
     public function setRawData($rawData)
     {
         $this->rawData = $rawData;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardPan()
+    {
+        return $this->cardPan;
+    }
+
+    /**
+     * @param mixed $cardPan
+     */
+    public function setCardPan($cardPan)
+    {
+        $this->cardPan = $cardPan;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardExpiryDate()
+    {
+        return $this->cardExpiryDate;
+    }
+
+    /**
+     * @param mixed $cardExpiryDate
+     */
+    public function setCardExpiryDate($cardExpiryDate)
+    {
+        $this->cardExpiryDate = $cardExpiryDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardTokenExpiryDate()
+    {
+        return $this->cardTokenExpiryDate;
+    }
+
+    /**
+     * @param mixed $cardTokenExpiryDate
+     */
+    public function setCardTokenExpiryDate($cardTokenExpiryDate)
+    {
+        $this->cardTokenExpiryDate = $cardTokenExpiryDate;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardHolderName()
+    {
+        return $this->cardHolderName;
+    }
+
+    /**
+     * @param mixed $cardHolderName
+     */
+    public function setCardHolderName($cardHolderName)
+    {
+        $this->cardHolderName = $cardHolderName;
     }
 }

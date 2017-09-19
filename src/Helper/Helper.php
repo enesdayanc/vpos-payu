@@ -15,6 +15,9 @@ use PaymentGateway\VPosPayU\Constant\PayUResponseStatus;
 use PaymentGateway\VPosPayU\Constant\RedirectMethod;
 use PaymentGateway\VPosPayU\Constant\RefundResponseMessage;
 use PaymentGateway\VPosPayU\Exception\ValidationException;
+use PaymentGateway\VPosPayU\HttpClient;
+use PaymentGateway\VPosPayU\Request\CardTokenInfoRequest;
+use PaymentGateway\VPosPayU\Response\CardTokenInfoResponse;
 use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Setting;
 use PayU\Alu\MerchantConfig;
@@ -51,9 +54,10 @@ class Helper
     /**
      * @param \PayU\Alu\Response $payUResponse
      * @param $requestRawData
+     * @param Setting $setting
      * @return Response
      */
-    public static function ConvertPayUResponseToResponse($payUResponse, $requestRawData)
+    public static function ConvertPayUResponseToResponse($payUResponse, $requestRawData, Setting $setting)
     {
         $response = new Response();
 
@@ -83,7 +87,14 @@ class Helper
         }
 
         if (!empty($payUResponse->getTokenHash())) {
+            $response->setCardPan($payUResponse->getAdditionalParameterValue('PAN'));
             $response->setCardToken($payUResponse->getTokenHash());
+
+            $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
+
+            $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
+            $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
+            $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
         }
 
         return $response;
@@ -148,5 +159,59 @@ class Helper
     public static function maskValue($value, $takeStart = 0, $takeStop = 0, $maskingCharacter = '*')
     {
         return substr($value, $takeStart, $takeStop) . str_repeat($maskingCharacter, strlen($value) - ($takeStop - $takeStart));
+    }
+
+    /**
+     * @param string $cardToken
+     * @param Setting $setting
+     * @return CardTokenInfoResponse
+     */
+    public static function getCardTokenInfo(string $cardToken, Setting $setting)
+    {
+        $cardTokenInfoRequest = new CardTokenInfoRequest();
+
+        $cardTokenInfoRequest->setCardToken($cardToken);
+
+        $httpClient = new HttpClient($setting);
+
+        return $httpClient->getCardTokenInfo($cardTokenInfoRequest);
+    }
+
+    /**
+     * @param $guzzleResponse
+     * @return CardTokenInfoResponse
+     */
+    public static function ConvertCardTokenInfoGuzzleResponseToCardTokenInfoResponse($guzzleResponse)
+    {
+        $cardTokenInfoResponse = new CardTokenInfoResponse();
+
+        $dataArray = json_decode($guzzleResponse, true);
+
+        if (!empty($dataArray['token'])) {
+            $token = $dataArray['token'];
+
+            if (!empty($token['tokenStatus'])) {
+                $cardTokenInfoResponse->setTokenStatus($token['tokenStatus']);
+            }
+
+            if (!empty($token['tokenExpirationDate'])) {
+                $cardTokenInfoResponse->setTokenExpirationDate(new \DateTime($token['tokenExpirationDate']));
+            }
+
+            if (!empty($token['cardNumberMask'])) {
+                $cardTokenInfoResponse->setCardNumberMask($token['cardNumberMask']);
+            }
+
+            if (!empty($token['cardExpirationDate'])) {
+                $cardTokenInfoResponse->setCardExpirationDate(new \DateTime($token['cardExpirationDate']));
+            }
+
+            if (!empty($token['cardHolderName'])) {
+                $cardTokenInfoResponse->setCardHolderName($token['cardHolderName']);
+            }
+        }
+
+
+        return $cardTokenInfoResponse;
     }
 }

@@ -12,6 +12,7 @@ namespace PaymentGateway\VPosPayU;
 use Exception;
 use PaymentGateway\VPosPayU\Exception\CurlException;
 use PaymentGateway\VPosPayU\Helper\Helper;
+use PaymentGateway\VPosPayU\Request\CardTokenInfoRequest;
 use PaymentGateway\VPosPayU\Request\RefundRequest;
 use PaymentGateway\VPosPayU\Request\RequestInterface;
 use PaymentGateway\VPosPayU\Setting\Setting;
@@ -47,7 +48,7 @@ class HttpClient
             throw new CurlException('Connection Error', $exception->getMessage());
         }
 
-        return Helper::ConvertPayUResponseToResponse($payUResponse, json_encode($request->getRequestParams()));
+        return Helper::ConvertPayUResponseToResponse($payUResponse, json_encode($request->getRequestParams()), $this->setting);
     }
 
 
@@ -70,5 +71,29 @@ class HttpClient
         }
 
         return Helper::ConvertRefundGuzzleResponseToResponse($clientResponse->getBody()->getContents());
+    }
+
+    /**
+     * @param CardTokenInfoRequest $cardTokenInfoRequest
+     * @return Response\CardTokenInfoResponse
+     * @throws CurlException
+     */
+    public function getCardTokenInfo(CardTokenInfoRequest $cardTokenInfoRequest)
+    {
+        $guzzleClient = new \GuzzleHttp\Client();
+
+        try {
+            $clientResponse = $guzzleClient->get(
+                $this->setting->getCardTokenInfoUrl($cardTokenInfoRequest->getCardToken()),
+                [
+                    'timeout' => $this->timeout,
+                    'form_params' => $cardTokenInfoRequest->toArray($this->setting)
+                ]
+            );
+        } catch (Exception $exception) {
+            throw new CurlException('Connection Error', $exception->getMessage());
+        }
+
+        return Helper::ConvertCardTokenInfoGuzzleResponseToCardTokenInfoResponse($clientResponse->getBody()->getContents());
     }
 }
