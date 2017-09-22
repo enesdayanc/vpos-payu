@@ -48,7 +48,7 @@ class ThreeDResponse
             $response->setCardPan($handleResponse->getAdditionalParameterValue('PAN'));
             $response->setCardToken($handleResponse->getTokenHash());
 
-            $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
+            $cardTokenInfoResponse = Helper::getCardTokenInfo($handleResponse->getTokenHash(), $setting);
 
             $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
             $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
