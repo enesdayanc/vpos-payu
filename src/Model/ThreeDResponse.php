@@ -20,6 +20,7 @@ class ThreeDResponse
     /**
      * @param Setting $setting
      * @param array $allParams
+     * @param $orderId
      * @return Response
      */
     public function getResponseClass(Setting $setting, array $allParams, $orderId)
