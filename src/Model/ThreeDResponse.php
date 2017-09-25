@@ -22,7 +22,7 @@ class ThreeDResponse
      * @param array $allParams
      * @return Response
      */
-    public function getResponseClass(Setting $setting, array $allParams)
+    public function getResponseClass(Setting $setting, array $allParams, $orderId)
     {
         $response = new Response();
         $response->setRequestRawData(json_encode($allParams, true));
@@ -36,10 +36,14 @@ class ThreeDResponse
 
         $response->setRawData(json_encode($handleResponse->getResponseParams(), true));
 
-        if ($handleResponse->getStatus() == ThreeDSResponse::SUCCESS) {
-            $response->setSuccessful(true);
+        if ($handleResponse->getOrderRef() == $orderId) {
+            if ($handleResponse->getStatus() == ThreeDSResponse::SUCCESS) {
+                $response->setSuccessful(true);
+            } else {
+                $response->setErrorMessage($handleResponse->getReturnMessage());
+            }
         } else {
-            $response->setErrorMessage($handleResponse->getReturnMessage());
+            $response->setErrorMessage('Order id not match');
         }
 
         $response->setCode($handleResponse->getAuthCode());

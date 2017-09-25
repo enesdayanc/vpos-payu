@@ -340,7 +340,7 @@ class VposTest extends TestCase
             'HASH' => '9d03d67f308d27a858ce5774084e673e',
         );
 
-        $response = $this->vPosThreeD->handle3DResponse($params);
+        $response = $this->vPosThreeD->handle3DResponse('MOe175ec6c62', $params);
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertTrue($response->isSuccessful());
@@ -391,7 +391,7 @@ class VposTest extends TestCase
             'HASH' => 'a00c7d76734f7372c2ec1cb430199be3',
         );
 
-        $response = $this->vPosThreeD->handle3DResponse($params);
+        $response = $this->vPosThreeD->handle3DResponse('MO8494489c06', $params);
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertFalse($response->isSuccessful());
