@@ -39,7 +39,7 @@ class VPos
         return $this->httpClient->sendRefund($refundRequest);
     }
 
-    public function handle3DResponse($orderId, array $allParams)
+    public function handle3DResponse(array $allParams, $orderId)
     {
         $threeDResponse = new ThreeDResponse();
 
