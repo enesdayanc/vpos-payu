@@ -12,6 +12,7 @@ namespace PaymentGateway\VPosPayU\Response;
 class Response
 {
     private $successful = false;
+    private $waiting = false;
     private $code;
     private $errorCode;
     private $errorMessage;
@@ -43,6 +44,22 @@ class Response
     public function setSuccessful(bool $successful)
     {
         $this->successful = $successful;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWaiting(): bool
+    {
+        return $this->waiting;
+    }
+
+    /**
+     * @param bool $waiting
+     */
+    public function setWaiting(bool $waiting)
+    {
+        $this->waiting = $waiting;
     }
 
     /**

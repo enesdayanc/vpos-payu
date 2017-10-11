@@ -40,6 +40,7 @@ class ThreeDResponse
         if ($handleResponse->getOrderRef() == $orderId) {
             if ($handleResponse->getStatus() == ThreeDSResponse::SUCCESS) {
                 $response->setSuccessful(true);
+                $response->setWaiting(true);
             } else {
                 $response->setErrorMessage($handleResponse->getReturnMessage());
             }

@@ -65,7 +65,10 @@ class Helper
 
         $response->setRequestRawData($requestRawData);
 
-        $response->setSuccessful(($payUResponse->getStatus() == PayUResponseStatus::SUCCESS && $payUResponse->getReturnCode() == PayUResponseReturnCode::AUTHORIZED));
+        if (($payUResponse->getStatus() == PayUResponseStatus::SUCCESS && $payUResponse->getReturnCode() == PayUResponseReturnCode::AUTHORIZED)) {
+            $response->setSuccessful(true);
+            $response->setWaiting(true);
+        }
 
         $response->setCode($payUResponse->getAuthCode());
 
@@ -144,6 +147,7 @@ class Helper
 
             if ($returnArray['RESPONSE_MSG'] == RefundResponseMessage::OK) {
                 $response->setSuccessful(true);
+                $response->setWaiting(true);
             } else {
                 $response->setErrorCode($returnArray['RESPONSE_CODE']);
                 $response->setErrorMessage($returnArray['RESPONSE_MSG']);
