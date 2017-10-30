@@ -48,7 +48,7 @@ class HttpClient
             throw new CurlException('Connection Error', $exception->getMessage());
         }
 
-        return Helper::ConvertPayUResponseToResponse($payUResponse, json_encode($request->getRequestParams()), $this->setting);
+        return Helper::ConvertPayUResponseToResponse($payUResponse, json_encode($request->getRequestParams()), $this->setting, $requestElements);
     }
 
 

@@ -51,7 +51,14 @@ class ThreeDResponse
         $response->setCode($handleResponse->getAuthCode());
 
         if (!empty($handleResponse->getTokenHash())) {
-            $response->setCardPan($handleResponse->getAdditionalParameterValue('PAN'));
+
+            if (!empty($handleResponse->getAdditionalParameterValue('PAN'))) {
+                $cardPan = $handleResponse->getAdditionalParameterValue('PAN');
+            } else {
+                $cardPan = "";
+            }
+
+            $response->setCardPan($cardPan);
             $response->setCardToken($handleResponse->getTokenHash());
 
             $cardTokenInfoResponse = Helper::getCardTokenInfo($handleResponse->getTokenHash(), $setting);

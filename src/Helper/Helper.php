@@ -17,6 +17,8 @@ use PaymentGateway\VPosPayU\Constant\RefundResponseMessage;
 use PaymentGateway\VPosPayU\Exception\ValidationException;
 use PaymentGateway\VPosPayU\HttpClient;
 use PaymentGateway\VPosPayU\Request\CardTokenInfoRequest;
+use PaymentGateway\VPosPayU\Request\PurchaseRequest;
+use PaymentGateway\VPosPayU\Request\RequestInterface;
 use PaymentGateway\VPosPayU\Response\CardTokenInfoResponse;
 use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Setting;
@@ -55,10 +57,15 @@ class Helper
      * @param \PayU\Alu\Response $payUResponse
      * @param $requestRawData
      * @param Setting $setting
+     * @param RequestInterface $request
      * @return Response
      */
-    public static function ConvertPayUResponseToResponse($payUResponse, $requestRawData, Setting $setting)
-    {
+    public static function ConvertPayUResponseToResponse(
+        $payUResponse,
+        $requestRawData,
+        Setting $setting,
+        RequestInterface $request
+    ) {
         $response = new Response();
 
         $response->setRawData(json_encode($payUResponse->getResponseParams()));
@@ -90,7 +97,16 @@ class Helper
         }
 
         if (!empty($payUResponse->getTokenHash())) {
-            $response->setCardPan($payUResponse->getAdditionalParameterValue('PAN'));
+
+            if (!empty($payUResponse->getAdditionalParameterValue('PAN'))) {
+                $cardPan = $payUResponse->getAdditionalParameterValue('PAN');
+            } elseif ($request instanceof PurchaseRequest) {
+                $cardPan = self::getCardPanByCardNumber($request->getCard()->getCreditCardNumber());
+            } else {
+                $cardPan = "";
+            }
+
+            $response->setCardPan($cardPan);
             $response->setCardToken($payUResponse->getTokenHash());
 
             $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
@@ -217,5 +233,12 @@ class Helper
 
 
         return $cardTokenInfoResponse;
+    }
+
+    public static function getCardPanByCardNumber(string $cardNumber)
+    {
+        Validator::validateCardNumber($cardNumber);
+
+        return substr($cardNumber, 0, 4) . '-xxxx-xxxx-' . substr($cardNumber, -4, 4);
     }
 }
