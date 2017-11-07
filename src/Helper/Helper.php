@@ -232,7 +232,11 @@ class Helper
             }
 
             if (!empty($token['cardNumberMask'])) {
-                $cardTokenInfoResponse->setCardPan($token['cardNumberMask']);
+
+                // 9999-99xx-xxxx-9999 => 9999-xxxx-xxxx-9999
+                $cardPanValue = preg_replace("/-[0-9][0-9][a-zA-Z][a-zA-Z]-/", "-xxxx-", $token['cardNumberMask']);
+
+                $cardTokenInfoResponse->setCardPan($cardPanValue);
             }
         }
 
