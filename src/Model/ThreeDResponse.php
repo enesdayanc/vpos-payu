@@ -52,17 +52,18 @@ class ThreeDResponse
 
         if (!empty($handleResponse->getTokenHash())) {
 
+            $cardTokenInfoResponse = Helper::getCardTokenInfo($handleResponse->getTokenHash(), $setting);
+
             if (!empty($handleResponse->getAdditionalParameterValue('PAN'))) {
                 $cardPan = $handleResponse->getAdditionalParameterValue('PAN');
+            } elseif (!empty($cardTokenInfoResponse->getCardPan())) {
+                $cardPan = $cardTokenInfoResponse->getCardPan();
             } else {
                 $cardPan = "";
             }
 
             $response->setCardPan($cardPan);
             $response->setCardToken($handleResponse->getTokenHash());
-
-            $cardTokenInfoResponse = Helper::getCardTokenInfo($handleResponse->getTokenHash(), $setting);
-
             $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
             $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
             $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());

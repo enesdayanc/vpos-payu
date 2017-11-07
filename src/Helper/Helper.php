@@ -98,8 +98,12 @@ class Helper
 
         if (!empty($payUResponse->getTokenHash())) {
 
+            $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
+
             if (!empty($payUResponse->getAdditionalParameterValue('PAN'))) {
                 $cardPan = $payUResponse->getAdditionalParameterValue('PAN');
+            } elseif (!empty($cardTokenInfoResponse->getCardPan())) {
+                $cardPan = $cardTokenInfoResponse->getCardPan();
             } elseif ($request instanceof PurchaseRequest) {
                 $cardPan = self::getCardPanByCardNumber($request->getCard()->getCreditCardNumber());
             } else {
@@ -108,9 +112,6 @@ class Helper
 
             $response->setCardPan($cardPan);
             $response->setCardToken($payUResponse->getTokenHash());
-
-            $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
-
             $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
             $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
             $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
@@ -228,6 +229,10 @@ class Helper
 
             if (!empty($token['cardHolderName'])) {
                 $cardTokenInfoResponse->setCardHolderName($token['cardHolderName']);
+            }
+
+            if (!empty($token['cardNumberMask'])) {
+                $cardTokenInfoResponse->setCardPan($token['cardNumberMask']);
             }
         }
 

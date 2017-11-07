@@ -16,6 +16,7 @@ class CardTokenInfoResponse
     private $cardNumberMask;
     private $cardExpirationDate;
     private $cardHolderName;
+    private $cardPan;
 
     /**
      * @return mixed
@@ -95,5 +96,21 @@ class CardTokenInfoResponse
     public function setCardHolderName($cardHolderName)
     {
         $this->cardHolderName = $cardHolderName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCardPan()
+    {
+        return $this->cardPan;
+    }
+
+    /**
+     * @param mixed $cardPan
+     */
+    public function setCardPan($cardPan)
+    {
+        $this->cardPan = $cardPan;
     }
 }
