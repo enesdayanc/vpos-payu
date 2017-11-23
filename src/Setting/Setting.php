@@ -19,6 +19,9 @@ class Setting
     private $threeDReturnUrl;
     private $defaultProductName;
     private $defaultProductCode;
+    private $customAluUrl;
+    private $customIrnUrl;
+    private $customCardTokenInfoUrl;
 
     /**
      * @return Credential
@@ -97,6 +100,10 @@ class Setting
     {
         $this->validate();
 
+        if (!empty($this->customIrnUrl)) {
+            return $this->customIrnUrl;
+        }
+
         switch ($this->getCredential()->getPlatform()) {
             case Platform::RO:
                 return 'https://secure.payu.ro/order/irn.php';
@@ -117,6 +124,10 @@ class Setting
     {
         $this->validate();
 
+        if (!empty($this->customCardTokenInfoUrl)) {
+            return trim($this->customCardTokenInfoUrl, '/') . '/' . $cardToken;
+        }
+
         switch ($this->getCredential()->getPlatform()) {
             case Platform::RO:
                 return sprintf('https://secure.payu.ro/order/token/v2/merchantToken/%s', $cardToken);
@@ -131,5 +142,37 @@ class Setting
         }
 
         throw new NotFoundException('Card Token Info Url Not Found', 'CARD_TOKEN_INFO_URL_NOT_FOUND');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomAluUrl()
+    {
+        return $this->customAluUrl;
+    }
+
+    /**
+     * @param mixed $customAluUrl
+     */
+    public function setCustomAluUrl($customAluUrl)
+    {
+        $this->customAluUrl = $customAluUrl;
+    }
+
+    /**
+     * @param mixed $customIrnUrl
+     */
+    public function setCustomIrnUrl($customIrnUrl)
+    {
+        $this->customIrnUrl = $customIrnUrl;
+    }
+
+    /**
+     * @param mixed $customCardTokenInfoUrl
+     */
+    public function setCustomCardTokenInfoUrl($customCardTokenInfoUrl)
+    {
+        $this->customCardTokenInfoUrl = $customCardTokenInfoUrl;
     }
 }

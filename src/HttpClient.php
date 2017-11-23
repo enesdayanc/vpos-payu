@@ -41,6 +41,10 @@ class HttpClient
 
         $client = new Client($merchantConfig);
 
+        if (!empty($this->setting->getCustomAluUrl())) {
+            $client->setCustomUrl($this->setting->getCustomAluUrl());
+        }
+
         try {
             $payUResponse = $client->pay($request);
 
