@@ -24,7 +24,6 @@ use PaymentGateway\VPosPayU\Response\Response;
 use PaymentGateway\VPosPayU\Setting\Setting;
 use PayU\Alu\MerchantConfig;
 use ReflectionClass;
-use SimpleXMLElement;
 use Spatie\ArrayToXml\ArrayToXml;
 
 class Helper
@@ -146,9 +145,9 @@ class Helper
 
         $response->setRawData($guzzleResponse);
 
-        try {
-            $data = new SimpleXMLElement($guzzleResponse);
-        } catch (Exception $exception) {
+        $data = @simplexml_load_string($guzzleResponse);
+
+        if (empty($data)) {
             throw new ValidationException('Invalid Xml Response', 'INVALID_XML_RESPONSE');
         }
 
