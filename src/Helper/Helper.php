@@ -74,6 +74,28 @@ class Helper
         if (($payUResponse->getStatus() == PayUResponseStatus::SUCCESS && $payUResponse->getReturnCode() == PayUResponseReturnCode::AUTHORIZED)) {
             $response->setSuccessful(true);
             $response->setWaiting(true);
+
+            if (!empty($payUResponse->getTokenHash())) {
+
+                $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
+
+                if (!empty($payUResponse->getAdditionalParameterValue('PAN'))) {
+                    $cardPan = $payUResponse->getAdditionalParameterValue('PAN');
+                } elseif (!empty($cardTokenInfoResponse->getCardPan())) {
+                    $cardPan = $cardTokenInfoResponse->getCardPan();
+                } elseif ($request instanceof PurchaseRequest) {
+                    $cardPan = self::getCardPanByCardNumber($request->getCard()->getCreditCardNumber());
+                } else {
+                    $cardPan = "";
+                }
+
+                $response->setCardPan($cardPan);
+                $response->setCardToken($payUResponse->getTokenHash());
+                $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
+                $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
+                $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
+            }
+
         }
 
         $response->setCode($payUResponse->getAuthCode());
@@ -93,27 +115,6 @@ class Helper
             $response->setRedirectUrl($payUResponse->getThreeDsUrl());
             $response->setRedirectMethod(RedirectMethod::GET);
             $response->setRedirectData(null);
-        }
-
-        if (!empty($payUResponse->getTokenHash())) {
-
-            $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
-
-            if (!empty($payUResponse->getAdditionalParameterValue('PAN'))) {
-                $cardPan = $payUResponse->getAdditionalParameterValue('PAN');
-            } elseif (!empty($cardTokenInfoResponse->getCardPan())) {
-                $cardPan = $cardTokenInfoResponse->getCardPan();
-            } elseif ($request instanceof PurchaseRequest) {
-                $cardPan = self::getCardPanByCardNumber($request->getCard()->getCreditCardNumber());
-            } else {
-                $cardPan = "";
-            }
-
-            $response->setCardPan($cardPan);
-            $response->setCardToken($payUResponse->getTokenHash());
-            $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
-            $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
-            $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
         }
 
         return $response;

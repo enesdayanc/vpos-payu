@@ -41,6 +41,26 @@ class ThreeDResponse
             if ($handleResponse->getStatus() == ThreeDSResponse::SUCCESS) {
                 $response->setSuccessful(true);
                 $response->setWaiting(true);
+
+                if (!empty($handleResponse->getTokenHash())) {
+
+                    $cardTokenInfoResponse = Helper::getCardTokenInfo($handleResponse->getTokenHash(), $setting);
+
+                    if (!empty($handleResponse->getAdditionalParameterValue('PAN'))) {
+                        $cardPan = $handleResponse->getAdditionalParameterValue('PAN');
+                    } elseif (!empty($cardTokenInfoResponse->getCardPan())) {
+                        $cardPan = $cardTokenInfoResponse->getCardPan();
+                    } else {
+                        $cardPan = "";
+                    }
+
+                    $response->setCardPan($cardPan);
+                    $response->setCardToken($handleResponse->getTokenHash());
+                    $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
+                    $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
+                    $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
+                }
+
             } else {
                 $response->setErrorMessage($handleResponse->getReturnMessage());
             }
@@ -49,25 +69,6 @@ class ThreeDResponse
         }
 
         $response->setCode($handleResponse->getAuthCode());
-
-        if (!empty($handleResponse->getTokenHash())) {
-
-            $cardTokenInfoResponse = Helper::getCardTokenInfo($handleResponse->getTokenHash(), $setting);
-
-            if (!empty($handleResponse->getAdditionalParameterValue('PAN'))) {
-                $cardPan = $handleResponse->getAdditionalParameterValue('PAN');
-            } elseif (!empty($cardTokenInfoResponse->getCardPan())) {
-                $cardPan = $cardTokenInfoResponse->getCardPan();
-            } else {
-                $cardPan = "";
-            }
-
-            $response->setCardPan($cardPan);
-            $response->setCardToken($handleResponse->getTokenHash());
-            $response->setCardExpiryDate($cardTokenInfoResponse->getCardExpirationDate());
-            $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
-            $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
-        }
 
         $response->setTransactionReference($handleResponse->getRefno());
 
