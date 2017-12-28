@@ -62,6 +62,7 @@ class ThreeDResponse
                 }
 
             } else {
+                $response->setErrorCode($handleResponse->getReturnCode());
                 $response->setErrorMessage($handleResponse->getReturnMessage());
             }
         } else {
