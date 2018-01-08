@@ -230,7 +230,8 @@ class PurchaseRequest implements RequestInterface
             ->withEmail($this->getBillingAddress()->getEmail())
             ->withFirstName($this->getBillingAddress()->getFirstName())
             ->withLastName($this->getBillingAddress()->getLastName())
-            ->withPhoneNumber($this->getBillingAddress()->getPhoneNumber());
+            ->withPhoneNumber($this->getBillingAddress()->getPhoneNumber())
+            ->withCountryCode($this->getBillingAddress()->getCountryCode());
 
         /**
          * Create new delivery address
@@ -242,13 +243,14 @@ class PurchaseRequest implements RequestInterface
          *
          * Full params available in the documentation
          */
-        $delivery->withAddressLine1($this->getBillingAddress()->getAddressLine1())
-            ->withAddressLine2($this->getBillingAddress()->getAddressLine2())
-            ->withCountryCode($this->getBillingAddress()->getCountryCode())
-            ->withEmail($this->getBillingAddress()->getEmail())
-            ->withFirstName($this->getBillingAddress()->getFirstName())
-            ->withLastName($this->getBillingAddress()->getLastName())
-            ->withPhoneNumber($this->getBillingAddress()->getPhoneNumber());
+        $delivery->withAddressLine1($this->getDeliveryAddress()->getAddressLine1())
+            ->withAddressLine2($this->getDeliveryAddress()->getAddressLine2())
+            ->withCountryCode($this->getDeliveryAddress()->getCountryCode())
+            ->withEmail($this->getDeliveryAddress()->getEmail())
+            ->withFirstName($this->getDeliveryAddress()->getFirstName())
+            ->withLastName($this->getDeliveryAddress()->getLastName())
+            ->withPhoneNumber($this->getDeliveryAddress()->getPhoneNumber())
+            ->withCountryCode($this->getDeliveryAddress()->getCountryCode());
 
         $request = new Request($merchantConfig, $order, $billing, $delivery, $user);
 
