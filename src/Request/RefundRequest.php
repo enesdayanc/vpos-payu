@@ -104,7 +104,7 @@ class RefundRequest implements RequestInterface
         $postData = array(
             "MERCHANT" => $credential->getMerchantCode(),
             "ORDER_REF" => $this->getTransactionReference(),
-            "ORDER_AMOUNT" => $this->getOrderTotalAmount(),
+            "ORDER_AMOUNT" => Helper::amountParser($this->getOrderTotalAmount()),
             "ORDER_CURRENCY" => $this->getCurrency()->getAlpha3(),
             "IRN_DATE" => gmdate('Y-m-d H:i:s'),
             "REGENERATE_CODES" => "",

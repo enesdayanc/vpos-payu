@@ -70,9 +70,9 @@ class VposTest extends TestCase
         $this->vPosThreeD = new VPos($settings);
 
         $card = new Card();
-        $card->setCreditCardNumber("4355084355084358");
+        $card->setCreditCardNumber("5571135571135575");
         $card->setExpiryMonth('12');
-        $card->setExpiryYear('18');
+        $card->setExpiryYear('22');
         $card->setFirstName('Enes');
         $card->setLastName('Dayanç');
         $card->setCvv('000');
@@ -96,8 +96,8 @@ class VposTest extends TestCase
         $this->currency = $iso4217->getByCode('TRY');
 
         $this->amount = rand(1, 100);
-        $this->orderId = 'MO' . substr(md5(microtime() . rand()), 0, 10);
-        $this->installment = 3;
+        $this->orderId = 'VPOS' . md5(microtime() . rand());
+        $this->installment = 1;
         $this->userIp = '127.0.0.1';
     }
 
@@ -231,16 +231,11 @@ class VposTest extends TestCase
         $this->assertFalse($response->isRedirect());
     }
 
-
-    /**
-     * @depends testPurchaseSaveCard
-     * @param $params
-     */
-    public function testPurchaseFailWithSavedCardWrongVPos($params)
+    public function testPurchaseFailWithSavedCardWrongVPos()
     {
         $card = new Card();
 
-        $card->setCardToken($params['cardToken']);
+        $card->setCardToken(md5(time()));
 
         $purchaseRequest = new PurchaseRequest();
         $purchaseRequest->setOrderId($this->orderId);
@@ -299,7 +294,7 @@ class VposTest extends TestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertFalse($response->isSuccessful());
         $this->assertFalse($response->isRedirect());
-        $this->assertSame('32', $response->getErrorCode());
+        $this->assertSame('10', $response->getErrorCode());
     }
 
     public function testHandle3DResponse()
@@ -416,6 +411,6 @@ class VposTest extends TestCase
         $this->assertInstanceOf(Response::class, $response);
         $this->assertFalse($response->isSuccessful());
         $this->assertFalse($response->isRedirect());
-        $this->assertSame('7', $response->getErrorCode());
+        $this->assertSame('32', $response->getErrorCode());
     }
 }
