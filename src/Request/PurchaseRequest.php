@@ -284,7 +284,6 @@ class PurchaseRequest implements RequestInterface
                  */
                 $request->setCardToken(new CardToken($this->getCard()->getCardToken(), $this->getCard()->getCvv()));
             }
-
         }
 
 

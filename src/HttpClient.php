@@ -47,12 +47,16 @@ class HttpClient
 
         try {
             $payUResponse = $client->pay($request);
-
         } catch (\Exception $exception) {
             throw new CurlException('Connection Error', $exception->getMessage());
         }
 
-        return Helper::ConvertPayUResponseToResponse($payUResponse, json_encode($request->getRequestParams()), $this->setting, $requestElements);
+        return Helper::convertPayUResponseToResponse(
+            $payUResponse,
+            json_encode($request->getRequestParams()),
+            $this->setting,
+            $requestElements
+        );
     }
 
 
@@ -74,7 +78,7 @@ class HttpClient
             throw new CurlException('Connection Error', $exception->getMessage());
         }
 
-        return Helper::ConvertRefundGuzzleResponseToResponse($clientResponse->getBody()->getContents());
+        return Helper::convertRefundGuzzleResponseToResponse($clientResponse->getBody()->getContents());
     }
 
     /**
@@ -98,6 +102,6 @@ class HttpClient
             throw new CurlException('Connection Error', $exception->getMessage());
         }
 
-        return Helper::ConvertCardTokenInfoGuzzleResponseToCardTokenInfoResponse($clientResponse->getBody()->getContents());
+        return Helper::convertCardTokenInfoGuzzleResponseToCardTokenInfoResponse($clientResponse->getBody()->getContents());
     }
 }

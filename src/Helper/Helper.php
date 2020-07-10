@@ -35,7 +35,7 @@ class Helper
 
     public static function getConstants($class)
     {
-        $oClass = new ReflectionClass ($class);
+        $oClass = new ReflectionClass($class);
         return $oClass->getConstants();
     }
 
@@ -59,7 +59,7 @@ class Helper
      * @param RequestInterface $request
      * @return Response
      */
-    public static function ConvertPayUResponseToResponse(
+    public static function convertPayUResponseToResponse(
         $payUResponse,
         $requestRawData,
         Setting $setting,
@@ -71,12 +71,13 @@ class Helper
 
         $response->setRequestRawData($requestRawData);
 
-        if (($payUResponse->getStatus() == PayUResponseStatus::SUCCESS && $payUResponse->getReturnCode() == PayUResponseReturnCode::AUTHORIZED)) {
+        if ($payUResponse->getStatus() == PayUResponseStatus::SUCCESS
+            && $payUResponse->getReturnCode() == PayUResponseReturnCode::AUTHORIZED
+        ) {
             $response->setSuccessful(true);
             $response->setWaiting(true);
 
             if (!empty($payUResponse->getTokenHash())) {
-
                 $cardTokenInfoResponse = Helper::getCardTokenInfo($payUResponse->getTokenHash(), $setting);
 
                 if (!empty($payUResponse->getAdditionalParameterValue('PAN'))) {
@@ -95,7 +96,6 @@ class Helper
                 $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
                 $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
             }
-
         }
 
         $response->setCode($payUResponse->getAuthCode());
@@ -140,7 +140,7 @@ class Helper
         return md5($k_opad . pack("H*", md5($k_ipad . $data)));
     }
 
-    public static function ConvertRefundGuzzleResponseToResponse($guzzleResponse)
+    public static function convertRefundGuzzleResponseToResponse($guzzleResponse)
     {
         $response = new Response();
 
@@ -171,7 +171,6 @@ class Helper
             }
 
             $response->setTransactionReference($returnArray['ORDER_HASH']);
-
         }
 
         return $response;
@@ -202,7 +201,7 @@ class Helper
      * @param $guzzleResponse
      * @return CardTokenInfoResponse
      */
-    public static function ConvertCardTokenInfoGuzzleResponseToCardTokenInfoResponse($guzzleResponse)
+    public static function convertCardTokenInfoGuzzleResponseToCardTokenInfoResponse($guzzleResponse)
     {
         $cardTokenInfoResponse = new CardTokenInfoResponse();
 
@@ -232,7 +231,6 @@ class Helper
             }
 
             if (!empty($token['cardNumberMask'])) {
-
                 // 9999-99xx-xxxx-9999 => 9999-xxxx-xxxx-9999
                 $cardPanValue = preg_replace("/-[0-9][0-9][a-zA-Z][a-zA-Z]-/", "-xxxx-", $token['cardNumberMask']);
 

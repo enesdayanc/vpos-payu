@@ -43,7 +43,6 @@ class ThreeDResponse
                 $response->setWaiting(true);
 
                 if (!empty($handleResponse->getTokenHash())) {
-
                     $cardTokenInfoResponse = Helper::getCardTokenInfo($handleResponse->getTokenHash(), $setting);
 
                     if (!empty($handleResponse->getAdditionalParameterValue('PAN'))) {
@@ -60,7 +59,6 @@ class ThreeDResponse
                     $response->setCardTokenExpiryDate($cardTokenInfoResponse->getTokenExpirationDate());
                     $response->setCardHolderName($cardTokenInfoResponse->getCardHolderName());
                 }
-
             } else {
                 $response->setErrorCode($handleResponse->getReturnCode());
                 $response->setErrorMessage($handleResponse->getReturnMessage());
